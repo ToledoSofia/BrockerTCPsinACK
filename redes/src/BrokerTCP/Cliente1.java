@@ -18,13 +18,12 @@ public class Cliente1 {
             entrada = new DataInputStream(sc.getInputStream());
             String msn = "";
             while(!msn.equals("x")){
-                System.out.println("Escriba un msn para enviar");
+                System.out.print("mnsj: ");
                 msn = scanner1.nextLine();
                 salida.writeUTF(msn);//enviamos mensaje
-                mensajeRecibido = entrada.readUTF();//Leemos respuesta
-                System.out.println(mensajeRecibido);
+                /*mensajeRecibido = entrada.readUTF();//Leemos respuesta
+                System.out.println(mensajeRecibido);*/
             }
-
             sc.close();
         }catch(Exception e){
 
