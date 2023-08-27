@@ -3,7 +3,52 @@ import javax.swing.text.Segment;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Scanner;
+
 public class ServidorBroker {
+    private HashMap<String, HashSet<Socket>> topicosClientes;
+    private static ServerSocket sc;
+    private static HashSet<Socket> clientes;
+
+    public ServidorBroker() {
+        topicosClientes = new HashMap<String, HashSet<Socket>>();
+    }
+
+    public HashMap<String, HashSet<Socket>> getTopicosClientes() {
+        return topicosClientes;
+    }
+
+    public static void main(String[] args) throws IOException {
+        ServidorBroker sb = new ServidorBroker();
+        sc = new ServerSocket(5000);
+        clientes = new HashSet<Socket>();
+        try {
+            while (true) {
+                Socket so;
+                so = sc.accept();
+                clientes.add(so);
+                System.out.println("Se conecto uno");
+
+                Runnable hilo = new manejoClientes(sc, so, sb);
+                Thread hilo1 = new Thread(hilo);
+                hilo1.start();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+/*public class ServidorBroker {
     private HashMap<String, HashSet<Socket>>topicosClientes;
     private static ServerSocket sc;
     private static HashSet<Socket>clientes;
@@ -57,7 +102,7 @@ public class ServidorBroker {
             }
     }
     }
-
+*/
 
 // s: algo (suscripcion) si le llega eso lo agrego a un array o algo de la suscripcion
 // m: algo: "hola" (mensaje, se envia el mensaje a todos los que estan en el array)
