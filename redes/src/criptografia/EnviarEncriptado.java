@@ -1,5 +1,6 @@
 package criptografia;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -10,25 +11,31 @@ import java.util.Scanner;
 class EnviarEncriptado implements Runnable {
     private Socket sc;
     private Rigoberto rigoberto;
+    private PublicKey publicKey;
+    private PrivateKey privateKey;
+    private PublicKey publicaDestino;
     //private DataOutputStream salida;
 
-    public EnviarEncriptado(Socket so, Rigoberto rigo) {
+    public EnviarEncriptado(Socket so, Rigoberto rigo, PublicKey pubKey, PrivateKey privKey, PublicKey publicaDestino) {
         sc = so;
         rigoberto = rigo;
+        publicKey = pubKey;
+        privateKey = privKey;
+        this.publicaDestino = publicaDestino;
     }
 
     @Override
     public void run() {
+        Scanner scanner = new Scanner(System.in);
         try {
-
-
-
-            /*while (true) {
+            ObjectOutputStream salida = new ObjectOutputStream(sc.getOutputStream());
+            while (true) {
                 String mensaje = scanner.nextLine();
-                mensaje = Arrays.toString(Asimetrica.firmar(Hash.Hashear(mensaje).getBytes(),privateKey,key.getAlgorithm()));
-                salida.writeUTF(mensaje);
+                Mensaje mnsj = new Mensaje(Asimetrica.firmar(mensaje.getBytes(),privateKey,"RSA"),Asimetrica.encriptar(mensaje.getBytes(),publicaDestino,"RSA"));
+
+                salida.writeObject(mnsj);
                 salida.flush();
-            }*/
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

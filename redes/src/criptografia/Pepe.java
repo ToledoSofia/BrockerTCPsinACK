@@ -14,11 +14,11 @@ public class Pepe {
             //sc = new Socket(HOST, PUERTO);
             Socket sc = new Socket(HOST, PUERTO);
 
-            Thread hiloRecibir = new Thread(new Recibir(sc));
-            Thread hiloEnviar = new Thread(new Enviar(sc));
+/*            Thread hiloRecibir = new Thread(new Recibir(sc));
+            Thread hiloEnviar = new Thread(new Enviar(sc));*/
 
-            hiloRecibir.start();
-            hiloEnviar.start();
+     /*       hiloRecibir.start();
+            hiloEnviar.start();*/
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -26,8 +26,8 @@ public class Pepe {
     }
 
     public static void main(String[] args) {
-        Cliente1 c1 = new Cliente1();
-        c1.iniciarCliente();
+ /*       Cliente1 c1 = new Cliente1();
+        c1.iniciarCliente();*/
     }
 }
 
