@@ -1,6 +1,6 @@
 package criptografia;
 
-import javax.xml.bind.DatatypeConverter;
+//import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
@@ -12,13 +12,16 @@ import java.util.Base64;
 
 public class Hash
 {
-    public static String Hashear(String mensaje) throws NoSuchAlgorithmException {
+    public static String hashear(String mensaje){
+        return mensaje;
+    }
+    /*public static String hashear(String mensaje) throws NoSuchAlgorithmException {
         String hasheado;
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] digest = md.digest(mensaje.getBytes(StandardCharsets.UTF_8));
         hasheado = DatatypeConverter.printHexBinary(digest).toLowerCase();
         return hasheado;
-    }
+    }*/
     public static PublicKey StringAPublica(String llave) throws NoSuchAlgorithmException, InvalidKeySpecException {
    /*     byte[] publicBytes = Base64.getDecoder().decode(llave);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
@@ -34,10 +37,10 @@ public class Hash
 
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] digest = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            String sha256 = DatatypeConverter.printHexBinary(digest).toLowerCase();
+            //String sha256 = DatatypeConverter.printHexBinary(digest).toLowerCase();
 
             // imprimir resumen de mensaje SHA-256
-            System.out.println(sha256);
+            //System.out.println(sha256);
         }catch(Exception e){
             System.err.println(e);
         }

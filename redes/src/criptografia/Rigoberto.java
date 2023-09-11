@@ -73,68 +73,25 @@ public class Rigoberto {
                 System.out.println("Se conecto uno");
 
                 //guardar clave publica
-                FileInputStream fis = new FileInputStream("t.tmp");
-                ObjectInputStream entrada = new ObjectInputStream(fis);
-                PublicKey publicaCliente = (PublicKey) entrada.readObject();
-                System.out.println("hola");
+                ObjectInputStream inputStream = new ObjectInputStream(so.getInputStream());
+                PublicKey publicaCliente = (PublicKey) inputStream.readObject();
+                System.out.println("se recibio clave del cliente");
 
                 //mandar clave publica
-                FileOutputStream fos = new FileOutputStream("t.tmp");
-                ObjectOutputStream salida = new ObjectOutputStream(fos);
-                salida.writeObject(publicKey);
+                ObjectOutputStream outputStream = new ObjectOutputStream(so.getOutputStream());
+                outputStream.writeObject(publicKey);
+                outputStream.flush();
+                System.out.println("se mando clave del server");
 
-                Clientes.put(so,publicaCliente);
 
-                /*Scanner scanner = new Scanner(System.in);
-                Runnable hiloEnviar = new EnviarEncriptado(so, sb, publicKey, privateKey, publicaCliente);
-                Thread hilo1 = new Thread(hiloEnviar);
-                hilo1.start();*/
-
-                Runnable hiloRecibir = new RecibirEncriptado(so, sb,publicKey,privateKey, publicaCliente);
-                Thread hilo2 = new Thread(hiloRecibir);
+                Runnable hiloEnviar = new EnviarEncriptado(so, sb,publicKey,privateKey, publicaCliente);
+                Thread hilo2 = new Thread(hiloEnviar);
                 hilo2.start();
 
-              /*  PublicKey llavePepe = null;
+                Runnable hiloRecibir = new RecibirEncriptado(so, sb,publicKey,privateKey, publicaCliente);
+                Thread hilo3 = new Thread(hiloRecibir);
+                hilo3.start();
 
-                ObjectInputStream entradaLlave = new ObjectInputStream(so.getInputStream());
-                PublicKey llavePublicaPepe = ((PublicKey) entradaLlave.readObject() );
-
-
-
-                DataInputStream entrada = new DataInputStream(so.getInputStream());
-                DataOutputStream salida = new DataOutputStream(so.getOutputStream());
-                //String llaveP = entrada.readUTF();
-
-                KeyPairGenerator key = KeyPairGenerator.getInstance("RSA");
-                key.initialize(1024);
-                KeyPair keyPair = key.generateKeyPair();
-                PublicKey publicKey = keyPair.getPublic();
-                PrivateKey privateKey = keyPair.getPrivate();
-
-
-
-                String test = "hola";
-                byte [] testEncriptado = criptografia.Asimetrica.encriptar(test.getBytes(), llavePepe, key.getAlgorithm());
-                System.out.println(criptografia.Asimetrica.desencriptar(testEncriptado, privateKey, key.getAlgorithm()));
-*/
-            /*    KeyPairGenerator key = KeyPairGenerator.getInstance("RSA");
-                key.initialize(1024);
-                KeyPair keyPair = key.generateKeyPair();
-                PublicKey publicKey = keyPair.getPublic();
-                PrivateKey privateKey = keyPair.getPrivate();*/
-
-
-               /* salida.writeUTF("pk" + String.valueOf(publicKey));
-                mensajeRecibido = entrada.readUTF();*/
-
-
-               /* String mensajeHasheado = criptografia.Hash.Hashear(mensajeRecibido);//hashear mensaje
-                byte[] firma = criptografia.Asimetrica.firmar(mensajeHasheado.getBytes(), privateKey,key.getAlgorithm());// firmar
-
-                //mensaje encriptado con clave publica de criptografia.Rigoberto
-                byte [] mnsjEncriptadoConPublica = criptografia.Asimetrica.encriptar(mensajeRecibido.getBytes(), llavePepe, key.getAlgorithm());
-
-*/
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

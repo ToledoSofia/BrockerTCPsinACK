@@ -33,11 +33,11 @@ class RecibirEncriptado implements Runnable {
             PublicKey clavePublicaOtro = (PublicKey) entradaClave.readObject();*/
 
             while (true) {
-                System.out.println("hlhaajif");
+                //System.out.println("hlhaajif");
                 Mensaje mensajeRecibido = (Mensaje) entrada.readObject();
                 String hash = Asimetrica.desenciptarFirma(mensajeRecibido.getFirma(),publicaCliente,"RSA").toString();
                 String mensaje = Asimetrica.desencriptar(mensajeRecibido.getEncriptadoPublica(),privateKey,"RSA").toString();
-               if(hash.equals(Hash.Hashear(mensaje))){
+               if(hash.equals(Hash.hashear(mensaje))){
                    System.out.println("entra");
                    System.out.println("Mensaje recibido: " + mensaje);
                }else{
@@ -46,9 +46,7 @@ class RecibirEncriptado implements Runnable {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

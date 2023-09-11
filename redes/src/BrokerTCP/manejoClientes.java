@@ -3,11 +3,15 @@ package BrokerTCP;
 //import com.sun.
 // //corba.se.spi.activation.Server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import criptografia.Asimetrica;
+import criptografia.Hash;
+import criptografia.Mensaje;
+
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -78,11 +82,15 @@ class manejoClientes implements Runnable {
     private DataOutputStream salida;
     private DataInputStream entrada;
     private String mensajeRecibido;
+    private PublicKey publicaCliente;
+    private PrivateKey privadaServidor;
 
-    public manejoClientes(ServerSocket servidor, Socket so, ServidorBroker sb) {
+    public manejoClientes(ServerSocket servidor, Socket so, ServidorBroker sb,PublicKey publicaCliente, PrivateKey privada) {
         this.servidor = servidor;
         this.so = so;
         serv = sb;
+        this.publicaCliente = publicaCliente;
+        privadaServidor = privada;
     }
 
     @Override
@@ -92,32 +100,54 @@ class manejoClientes implements Runnable {
         while (true) {
             mensajeRecibido = "";
             try {
-                entrada = new DataInputStream(so.getInputStream());
-                salida = new DataOutputStream(so.getOutputStream());
-                mensajeRecibido = entrada.readUTF();
-                if (mensajeRecibido.startsWith("s:") || mensajeRecibido.startsWith("S:")) {
-                    System.out.println("+ suscripcion " + mensajeRecibido.substring(2));
-                    String mensaje = mensajeRecibido.substring(2);
+                ObjectInputStream entrada = new ObjectInputStream(so.getInputStream());
+                ObjectOutputStream salida;
 
-                    serv.getTopicosClientes()
-                        .computeIfAbsent(mensaje, k -> new HashSet<>())
-                        .add(so);
-                } else if (mensajeRecibido.startsWith("m:") || mensajeRecibido.startsWith("M:")) {
-                    String[] partes = mensajeRecibido.split(":");
-                    String canal = partes[1];
-                    String mensajeSolo = partes[2];
+                Mensaje mensaje1 = (Mensaje) entrada.readObject();
+                mensajeRecibido = Asimetrica.desenciptarFirma(mensaje1.getFirma(),publicaCliente,"RSA").toString();
+                String hasheado = Asimetrica.desencriptar(mensaje1.getEncriptadoPublica(),privadaServidor,"RSA" ).toString();
+                //tiene que enviar encriptandolo con lo del destino y acomodar cuando se agregan canales a los topicosClientes
+                if(hasheado.equals(Hash.hashear(mensajeRecibido))){
+                    if (mensajeRecibido.startsWith("s:") || mensajeRecibido.startsWith("S:")) {// suscripcion
+                        System.out.println("+ suscripcion " + mensajeRecibido.substring(2));
+                        String mensaje = mensajeRecibido.substring(2);
 
-                    HashSet<Socket> socketsCanal = serv.getTopicosClientes().get(canal);
-                    if (socketsCanal != null) {
-                        for (Socket s : socketsCanal) {
-                            salida = new DataOutputStream(s.getOutputStream());
-                            salida.writeUTF("\nCANAL: " + canal + " = " + mensajeSolo);
+                        if(serv.getTopicosClientes().keySet().contains(mensaje)){//si no existe el canal lo crea y guarda el cliente en la lista junto con la clave publica
+                            HashMap<Socket, PublicKey> c = new HashMap<>();
+                            c.put(so,publicaCliente);
+                            serv.getTopicosClientes().put(mensaje,c);
+                        }
+                    /*serv.getTopicosClientes()
+                        .computeIfAbsent(mensaje, k -> new HashMap<>())
+                        .add(so);*/
+                    } else if (mensajeRecibido.startsWith("m:") || mensajeRecibido.startsWith("M:")) {//mensaje
+                        String[] partes = mensajeRecibido.split(":");
+                        String canal = partes[1];
+                        String mensajeSolo = partes[2];
+                        mensajeSolo ="CANAL: " + mensajeSolo;
+
+                        HashMap<Socket, PublicKey> socketsCanal = serv.getTopicosClientes().get(canal);
+                        if (socketsCanal != null) {
+                            for (Socket s : socketsCanal.keySet()) {//manda el mnsj a todos los suscriptos al canal
+                                Mensaje mensajeEncriptado = new Mensaje(
+                                        Asimetrica.firmar(Hash.hashear(mensajeSolo).getBytes(),privadaServidor,"RSA"),
+                                        Asimetrica.encriptar(mensajeSolo.getBytes(),socketsCanal.get(s),"RSA")
+                                );
+                                salida = new ObjectOutputStream(s.getOutputStream());
+                                salida.writeObject(mensajeEncriptado);
+                                salida.flush();
+                                //salida.writeUTF("\nCANAL: " + canal + " = " + mensajeSolo);
+                            }
                         }
                     }
+                }else{
+                    System.out.println("no coincide el hash");
                 }
                 System.out.println(mensajeRecibido);
             } catch (IOException e) {
                 //throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
         }
     }
