@@ -80,7 +80,6 @@ public class ServidorBroker {
                 so = sc.accept();
                 System.out.println("Se conecto uno");
 
-
                 //guardar clave publica
                 ObjectInputStream inputStream = new ObjectInputStream(so.getInputStream());
                 PublicKey publicaCliente = (PublicKey) inputStream.readObject();
@@ -93,18 +92,18 @@ public class ServidorBroker {
                 outputStream.flush();
                 System.out.println("se mando clave del server");
 
-
-                String test = "holaComoEstas";
-
-                byte[]testEncriptadoPublicaCliente = Asimetrica.encriptar(test.getBytes("UTF8"),publicKey,"RSA");
-                byte[]laconchadetumadre = Asimetrica.desencriptar(testEncriptadoPublicaCliente,privateKey,"RSA");
-                System.out.println(new String(laconchadetumadre,"UTF8"));
-                /*outputStream.writeObject(testEncriptadoPublicaCliente);
-                outputStream.flush();*/
-
                 Runnable hilo = new manejoClientes(sc, so, sb, publicaCliente, privateKey);
                 Thread hilo1 = new Thread(hilo);
                 hilo1.start();
+
+         /*       String test = "holaComoEstas";
+
+                byte[]testEncriptadoPublicaCliente = Asimetrica.encriptar(test.getBytes("UTF8"),publicKey,"RSA");
+                byte[]laconchadetumadre = Asimetrica.desencriptar(testEncriptadoPublicaCliente,privateKey,"RSA");
+                System.out.println(new String(laconchadetumadre,"UTF8"));*/
+                /*outputStream.writeObject(testEncriptadoPublicaCliente);
+                outputStream.flush();*/
+
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

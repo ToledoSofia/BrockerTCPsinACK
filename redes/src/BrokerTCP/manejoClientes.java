@@ -95,8 +95,9 @@ class manejoClientes implements Runnable {
 
     @Override
     public void run() {
-        Scanner scanner = new Scanner(System.in);
+/*
         String mensaje2;
+*/
         while (true) {
             mensajeRecibido = "";
             try {
@@ -118,6 +119,12 @@ class manejoClientes implements Runnable {
                             HashMap<String,HashMap<Socket,PublicKey>>aux = serv.getTopicosClientes();
                             aux.put(mensaje,c);
                             serv.setTopicosClientes(aux);
+                        }else{
+                            HashMap<Socket, PublicKey> c = serv.getTopicosClientes().get(mensaje);
+                            c.put(so,publicaCliente);
+                            HashMap<String,HashMap<Socket,PublicKey>>aux = serv.getTopicosClientes();
+                            aux.put(mensaje,c);
+                            serv.setTopicosClientes(aux);
                         }
                     /*serv.getTopicosClientes()
                         .computeIfAbsent(mensaje, k -> new HashMap<>())
@@ -131,7 +138,6 @@ class manejoClientes implements Runnable {
                         HashMap<Socket, PublicKey> socketsCanal = serv.getTopicosClientes().get(canal);
                         if (socketsCanal != null) {
                             for (Socket s : socketsCanal.keySet()) {//manda el mnsj a todos los suscriptos al canal
-                                System.out.println("entra for");
                                 Mensaje mensajeEncriptado = new Mensaje(
                                         Asimetrica.firmar(Hash.hashear(mensajeSolo).getBytes("UTF8"),privadaServidor,"RSA"),
                                         Asimetrica.encriptar(mensajeSolo.getBytes("UTF8"),socketsCanal.get(s),"RSA")

@@ -23,18 +23,17 @@ class Recibir implements Runnable {
     @Override
     public void run() {
         try {
-            ObjectInputStream entrada = new ObjectInputStream(sc.getInputStream());
             /*ObjectInputStream entradaClave = new ObjectInputStream(sc.getInputStream());
             PublicKey clavePublicaOtro = (PublicKey) entradaClave.readObject();*/
 
             while (true) {
+                ObjectInputStream entrada = new ObjectInputStream(sc.getInputStream());
                 //System.out.println("hlhaajif");
                 Mensaje mensajeRecibido = (Mensaje) entrada.readObject();
                 String hash = new String(Asimetrica.desenciptarFirma(mensajeRecibido.getFirma(),publicaCliente,"RSA"),"UTF8");
                 String mensaje = new String(Asimetrica.desencriptar(mensajeRecibido.getEncriptadoPublica(),privateKey,"RSA"),"UTF8");
                 if(hash.equals(Hash.hashear(mensaje))){
-                    System.out.println("entra");
-                    System.out.println("Mensaje recibido: " + mensaje);
+                    System.out.println("Mensaje recibido = " + mensaje);
                 }else{
                     System.out.println("hash no coincide en el cliente");
                 }

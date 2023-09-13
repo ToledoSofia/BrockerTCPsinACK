@@ -23,8 +23,8 @@ class Enviar implements Runnable {
     public void run() {
         Scanner scanner = new Scanner(System.in);
         try {
-            ObjectOutputStream salida = new ObjectOutputStream(sc.getOutputStream());
             while (true) {
+                ObjectOutputStream salida = new ObjectOutputStream(sc.getOutputStream());
                 String mensaje = scanner.nextLine();
                 Mensaje mnsj = new Mensaje(Asimetrica.firmar(Hash.hashear(mensaje).getBytes("UTF8"),privateKey,"RSA"),Asimetrica.encriptar(mensaje.getBytes("UTF8"),publicaDestino,"RSA"));
 
