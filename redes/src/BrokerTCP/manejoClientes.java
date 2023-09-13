@@ -10,6 +10,7 @@ import criptografia.Mensaje;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.HashMap;
@@ -79,8 +80,6 @@ class manejoClientes implements Runnable {
     private ServerSocket servidor;
     private ServidorBroker serv;
     private Socket so;
-    private DataOutputStream salida;
-    private DataInputStream entrada;
     private String mensajeRecibido;
     private PublicKey publicaCliente;
     private PrivateKey privadaServidor;
@@ -105,8 +104,8 @@ class manejoClientes implements Runnable {
                 ObjectOutputStream salida;
 
                 Mensaje mensaje1 = (Mensaje) entrada.readObject();
-                mensajeRecibido = new String(Asimetrica.desenciptarFirma(mensaje1.getFirma(),publicaCliente,"RSA"),"UTF8");
-                String hasheado = new String(Asimetrica.desencriptar(mensaje1.getEncriptadoPublica(),privadaServidor,"RSA" ),"UTF8");
+                String hasheado = new String(Asimetrica.desenciptarFirma(mensaje1.getFirma(),publicaCliente,"RSA"),"UTF8");
+                mensajeRecibido = new String(Asimetrica.desencriptar(mensaje1.getEncriptadoPublica(),privadaServidor,"RSA" ),"UTF8");
                 //tiene que enviar encriptandolo con lo del destino y acomodar cuando se agregan canales a los topicosClientes
                 if(hasheado.equals(Hash.hashear(mensajeRecibido))){
                     if (mensajeRecibido.startsWith("s:") || mensajeRecibido.startsWith("S:")) {// suscripcion
@@ -156,6 +155,8 @@ class manejoClientes implements Runnable {
             } catch (IOException e) {
                 //throw new RuntimeException(e);
             } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }
         }
