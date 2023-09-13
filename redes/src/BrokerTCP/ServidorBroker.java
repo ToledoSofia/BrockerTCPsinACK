@@ -1,4 +1,6 @@
 package BrokerTCP;
+import criptografia.Asimetrica;
+
 import javax.swing.text.Segment;
 import java.net.*;
 import java.io.*;
@@ -90,6 +92,15 @@ public class ServidorBroker {
                 outputStream.writeObject(publicKey);
                 outputStream.flush();
                 System.out.println("se mando clave del server");
+
+
+                String test = "holaComoEstas";
+
+                byte[]testEncriptadoPublicaCliente = Asimetrica.encriptar(test.getBytes("UTF8"),publicKey,"RSA");
+                byte[]laconchadetumadre = Asimetrica.desencriptar(testEncriptadoPublicaCliente,privateKey,"RSA");
+                System.out.println(new String(laconchadetumadre,"UTF8"));
+                /*outputStream.writeObject(testEncriptadoPublicaCliente);
+                outputStream.flush();*/
 
                 Runnable hilo = new manejoClientes(sc, so, sb, publicaCliente, privateKey);
                 Thread hilo1 = new Thread(hilo);

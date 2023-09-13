@@ -104,18 +104,20 @@ class manejoClientes implements Runnable {
                 ObjectOutputStream salida;
 
                 Mensaje mensaje1 = (Mensaje) entrada.readObject();
-                mensajeRecibido = Asimetrica.desenciptarFirma(mensaje1.getFirma(),publicaCliente,"RSA").toString();
-                String hasheado = Asimetrica.desencriptar(mensaje1.getEncriptadoPublica(),privadaServidor,"RSA" ).toString();
+                mensajeRecibido = new String(Asimetrica.desenciptarFirma(mensaje1.getFirma(),publicaCliente,"RSA"),"UTF8");
+                String hasheado = new String(Asimetrica.desencriptar(mensaje1.getEncriptadoPublica(),privadaServidor,"RSA" ),"UTF8");
                 //tiene que enviar encriptandolo con lo del destino y acomodar cuando se agregan canales a los topicosClientes
                 if(hasheado.equals(Hash.hashear(mensajeRecibido))){
                     if (mensajeRecibido.startsWith("s:") || mensajeRecibido.startsWith("S:")) {// suscripcion
                         System.out.println("+ suscripcion " + mensajeRecibido.substring(2));
                         String mensaje = mensajeRecibido.substring(2);
 
-                        if(serv.getTopicosClientes().keySet().contains(mensaje)){//si no existe el canal lo crea y guarda el cliente en la lista junto con la clave publica
+                        if(!serv.getTopicosClientes().keySet().contains(mensaje)){//si no existe el canal lo crea y guarda el cliente en la lista junto con la clave publica
                             HashMap<Socket, PublicKey> c = new HashMap<>();
                             c.put(so,publicaCliente);
-                            serv.getTopicosClientes().put(mensaje,c);
+                            HashMap<String,HashMap<Socket,PublicKey>>aux = serv.getTopicosClientes();
+                            aux.put(mensaje,c);
+                            serv.setTopicosClientes(aux);
                         }
                     /*serv.getTopicosClientes()
                         .computeIfAbsent(mensaje, k -> new HashMap<>())
@@ -124,14 +126,15 @@ class manejoClientes implements Runnable {
                         String[] partes = mensajeRecibido.split(":");
                         String canal = partes[1];
                         String mensajeSolo = partes[2];
-                        mensajeSolo ="CANAL: " + mensajeSolo;
+                        mensajeSolo ="CANAL: " + canal + ":" + mensajeSolo;
 
                         HashMap<Socket, PublicKey> socketsCanal = serv.getTopicosClientes().get(canal);
                         if (socketsCanal != null) {
                             for (Socket s : socketsCanal.keySet()) {//manda el mnsj a todos los suscriptos al canal
+                                System.out.println("entra for");
                                 Mensaje mensajeEncriptado = new Mensaje(
-                                        Asimetrica.firmar(Hash.hashear(mensajeSolo).getBytes(),privadaServidor,"RSA"),
-                                        Asimetrica.encriptar(mensajeSolo.getBytes(),socketsCanal.get(s),"RSA")
+                                        Asimetrica.firmar(Hash.hashear(mensajeSolo).getBytes("UTF8"),privadaServidor,"RSA"),
+                                        Asimetrica.encriptar(mensajeSolo.getBytes("UTF8"),socketsCanal.get(s),"RSA")
                                 );
                                 salida = new ObjectOutputStream(s.getOutputStream());
                                 salida.writeObject(mensajeEncriptado);

@@ -3,6 +3,7 @@ import criptografia.*;
 import java.io.*;
 import java.net.Socket;
 import java.security.*;
+import java.util.Arrays;
 
 public class Cliente1 {
     private String HOST = "localhost";
@@ -31,6 +32,9 @@ public class Cliente1 {
             PublicKey publicaDestino = (PublicKey) inputStream.readObject();
             System.out.println("se recibio clave del server");
 
+            /*byte[] test1 = (byte[]) inputStream.readObject();
+            String testDesencriptado = Arrays.toString(Asimetrica.desencriptar(test1,privateKey,"RSA"));
+            System.out.println("MENSAJITO: " + testDesencriptado);*/
 
 
             Thread hiloRecibir = new Thread(new Recibir(sc, publicKey, privateKey, publicaDestino));

@@ -30,8 +30,8 @@ class Recibir implements Runnable {
             while (true) {
                 //System.out.println("hlhaajif");
                 Mensaje mensajeRecibido = (Mensaje) entrada.readObject();
-                String hash = Asimetrica.desenciptarFirma(mensajeRecibido.getFirma(),publicaCliente,"RSA").toString();
-                String mensaje = Asimetrica.desencriptar(mensajeRecibido.getEncriptadoPublica(),privateKey,"RSA").toString();
+                String hash = new String(Asimetrica.desenciptarFirma(mensajeRecibido.getFirma(),publicaCliente,"RSA"),"UTF8");
+                String mensaje = new String(Asimetrica.desencriptar(mensajeRecibido.getEncriptadoPublica(),privateKey,"RSA"),"UTF8");
                 if(hash.equals(Hash.hashear(mensaje))){
                     System.out.println("entra");
                     System.out.println("Mensaje recibido: " + mensaje);

@@ -1,6 +1,8 @@
 package criptografia;
 
-public class Mensaje {
+import java.io.Serializable;
+
+public class Mensaje implements Serializable {
     private byte[]firma;//mensaje hasheado y encriptado con la clave privada
     private byte[]encriptadoPublica;//mensaje encriptado con la clave publica del destino
 
