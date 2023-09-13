@@ -1,5 +1,46 @@
 package BrokerTCP;
 
+import criptografia.*;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.security.*;
+import java.util.Scanner;
+class Enviar implements Runnable {
+    private Socket sc;
+    private PublicKey publicKey;
+    private PrivateKey privateKey;
+    private PublicKey publicaDestino;
+    //private DataOutputStream salida;
+
+    public Enviar(Socket so, PublicKey pubKey, PrivateKey privKey, PublicKey publicaDestino) {
+        sc = so;
+        publicKey = pubKey;
+        privateKey = privKey;
+        this.publicaDestino = publicaDestino;
+    }
+
+    @Override
+    public void run() {
+        Scanner scanner = new Scanner(System.in);
+        try {
+            while (true) {
+                ObjectOutputStream salida = new ObjectOutputStream(sc.getOutputStream());
+                String mensaje = scanner.nextLine();
+                Mensaje mnsj = new Mensaje(Asimetrica.firmar(Hash.hashear(mensaje).getBytes("UTF8"),privateKey,"RSA"),Asimetrica.encriptar(mensaje.getBytes("UTF8"),publicaDestino,"RSA"));
+
+                salida.writeObject(mnsj);
+                salida.flush();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+
+/*
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -28,39 +69,4 @@ class Enviar implements Runnable {
         }
     }
 }
-
-/*public class RecibirServidor implements Runnable {
-    private String HOST = "localhost";
-    private int PUERTO = 5000;
-    private Socket sc;
-    private DataOutputStream salida;
-
-    public RecibirServidor(Socket so){
-        sc = so;
-    }
-
-    @Override
-    public void run(){
-        Scanner scanner1 = new Scanner(System.in);
-        try{
-            salida = new DataOutputStream(sc.getOutputStream());
-            String msn = "";
-            while(!(msn.equals("x"))){
-                System.out.print("mnsj: ");
-                msn = scanner1.nextLine();
-                salida.writeUTF(msn);
-            }
-            sc.close();
-        }catch(Exception e){
-
-        }
-    }
-}
-
-
-
-
-
-
 */
-
